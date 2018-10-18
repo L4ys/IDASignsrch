@@ -65,7 +65,7 @@ class Chooser(Choose2):
         return len(self.items)
 
     def OnSelectLine(self, n):
-        Jump(self.items[n][0])
+        jumpto(self.items[n][0])
 
 class signsrch_t(plugin_t):
     flags = PLUGIN_PROC
