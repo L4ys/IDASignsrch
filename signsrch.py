@@ -3,6 +3,7 @@
 
 from idaapi import *
 import time
+import os
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -11,8 +12,11 @@ def chunks(l, n):
 
 def load_signatures():
     import xml.etree.ElementTree as ET
-    tree = ET.parse(idadir("plugins/signsrch.xml"))
-    root = tree.getroot()
+
+    db = idadir("plugins/signsrch.xml")
+    if not os.path.isfile(db):
+        db = os.path.join(get_user_idadir(), "plugins/signsrch.xml")
+    root = ET.parse(db).getroot()
 
     signature = []
     for p in root:
@@ -38,9 +42,9 @@ def load_signatures():
 
     return signature
 
-class Chooser(Choose2):
+class Chooser(Choose):
     def __init__(self, items):
-        Choose2.__init__(self, "Signsrch", [["Address", 20], ["Label", 80]], embedded=False)
+        Choose.__init__(self, "Signsrch", [["Address", 20], ["Label", 80]], embedded=False)
         self.items = items
         self.icon = 160
 
@@ -55,7 +59,7 @@ class Chooser(Choose2):
 
     def OnGetLine(self, n):
         addr, label = self.items[n]
-        seg_name = get_true_segm_name(getseg(addr))
+        seg_name = get_segm_name(getseg(addr))
         if seg_name:
             return ["%s:%X" % (seg_name, addr), label]
         else:
@@ -93,14 +97,14 @@ class signsrch_t(plugin_t):
         found = []
         for i in range(get_segm_qty()):
             seg = getnseg(i)
-            seg_name = get_true_segm_name(seg)
+            seg_name = get_segm_name(seg)
             seg_class = get_segm_class(seg)
             if seg.type in (SEG_XTRN, SEG_GRP, SEG_NULL, SEG_UNDF, SEG_ABSSYM, SEG_COMM, SEG_IMEM,):
                 print "Skipping segment: %s, %s" % (seg_name, seg_class)
                 continue
 
             print "Processing segment: %s, %s, 0x%08X - 0x%08X, %dbytes " % (seg_name, seg_class, seg.start_ea, seg.end_ea, seg.size())
-            bytes = get_many_bytes(seg.start_ea, seg.size())
+            bytes = get_bytes(seg.start_ea, seg.size())
             for sig in signatures:
                 ea = None
                 if "&" in sig["size"]:
