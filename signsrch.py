@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from idaapi import *
+import codecs
 import time
 import os
 
@@ -37,7 +38,7 @@ def load_signatures():
             "bits": bits,
             "endian": endian,
             "size": size,
-            "data": p.text.decode('hex'),
+            "data": codecs.decode(p.text, ('hex')),
         })
 
     return signature
@@ -79,7 +80,7 @@ class signsrch_t(plugin_t):
     wanted_hotkey = ""
 
     def init(self):
-        print "Signsrch (Python Version) (v1.0) plugin has been loaded."
+        print("Signsrch (Python Version) (v1.0) plugin has been loaded.")
         return PLUGIN_OK
 
     def run(self, arg):
@@ -87,9 +88,9 @@ class signsrch_t(plugin_t):
         signatures = [s for s in load_signatures() if s["endian"] != ignored]
 
         if not signatures:
-            print "No signature loaded, Aborted"
+            print("No signature loaded, Aborted")
             return
-        print "%d signatures loaded" % len(signatures)
+        print("%d signatures loaded" % len(signatures))
 
         # Scan every segments
         start_time = time.time()
@@ -100,17 +101,17 @@ class signsrch_t(plugin_t):
             seg_name = get_segm_name(seg)
             seg_class = get_segm_class(seg)
             if seg.type in (SEG_XTRN, SEG_GRP, SEG_NULL, SEG_UNDF, SEG_ABSSYM, SEG_COMM, SEG_IMEM,):
-                print "Skipping segment: %s, %s" % (seg_name, seg_class)
+                print("Skipping segment: %s, %s" % (seg_name, seg_class))
                 continue
 
-            print "Processing segment: %s, %s, 0x%08X - 0x%08X, %dbytes " % (seg_name, seg_class, seg.start_ea, seg.end_ea, seg.size())
+            print("Processing segment: %s, %s, 0x%08X - 0x%08X, %dbytes " % (seg_name, seg_class, seg.start_ea, seg.end_ea, seg.size()))
             bytes = get_bytes(seg.start_ea, seg.size())
             for sig in signatures:
                 ea = None
                 if "&" in sig["size"]:
                     bits = sig["bits"]
                     idx = 0
-                    for s in chunks(sig["data"], bits/8):
+                    for s in chunks(sig["data"], bits // 8):
                         idx = bytes.find(s, idx)
                         if idx == -1:
                             ea = None
@@ -119,7 +120,7 @@ class signsrch_t(plugin_t):
                         if ea == None:
                             ea = seg.start_ea + idx
 
-                        idx += bits / 8
+                        idx += bits // 8
                 else:
                     idx = bytes.find(sig["data"])
                     if idx != -1:
@@ -128,7 +129,7 @@ class signsrch_t(plugin_t):
                 if ea != None: # found
                     name = sig["name"]
                     found.append([ea, name])
-                    print "Found %s @ 0x%X" % (name, ea)
+                    print("Found %s @ 0x%X" % (name, ea))
 
                     # Add comment
                     cmt = get_cmt(ea, True)
@@ -137,7 +138,7 @@ class signsrch_t(plugin_t):
                     elif "Signsrch" not in cmt:
                         set_cmt(ea, cmt + ' <Signsrch> "%s"' % name, True)
 
-        print "Found %d matches in %s seconds" % (len(found), time.time() - start_time)
+        print("Found %d matches in %s seconds" % (len(found), time.time() - start_time))
 
         if found:
             ch = Chooser(found)
