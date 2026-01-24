@@ -14,9 +14,7 @@ def chunks(l, n):
 def load_signatures():
     import xml.etree.ElementTree as ET
 
-    db = idadir("plugins/signsrch.xml")
-    if not os.path.isfile(db):
-        db = os.path.join(get_user_idadir(), "plugins/signsrch.xml")
+    db = os.path.join(os.path.dirname(__file__), "signsrch.xml")
     root = ET.parse(db).getroot()
 
     signature = []
@@ -80,11 +78,15 @@ class signsrch_t(plugin_t):
     wanted_hotkey = ""
 
     def init(self):
-        print("Signsrch (Python Version) (v1.0) plugin has been loaded.")
+        print("Signsrch (Python Version) (v1.0.1) plugin has been loaded.")
         return PLUGIN_OK
 
     def run(self, arg):
-        ignored = ["be", "le"][cvar.inf.is_be()]
+        try:
+            is_be = inf_is_be()
+        except:
+            is_be = cvar.inf.is_be()
+        ignored = ["be", "le"][is_be]
         signatures = [s for s in load_signatures() if s["endian"] != ignored]
 
         if not signatures:
