@@ -1,7 +1,7 @@
 {
   "IDAMetadataDescriptorVersion": 1,
   "plugin": {
-    "name": "Signsrch",
+    "name": "IDASignsrch",
     "version": "1.0.1",
     "description": "IDAPython plugin for searching signatures using XML signature database from IDA_Signsrch",
     "entryPoint": "signsrch.py",
