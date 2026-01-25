@@ -2,7 +2,7 @@
   "IDAMetadataDescriptorVersion": 1,
   "plugin": {
     "name": "Signsrch",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "description": "IDAPython plugin for searching signatures using XML signature database from IDA_Signsrch",
     "entryPoint": "signsrch.py",
     "license": "GPL-3.0",
@@ -16,8 +16,8 @@
       "repository": "https://github.com/L4ys/IDASignsrch"
     },
     "idaVersions": ">=7.0",
-    "platforms": ["win", "mac", "linux"],
-    "categories": ["Signature Recognition"],
+    "platforms": ["windows-x86_64", "linux-x86_64", "macos-x86_64", "macos-aarch64"],
+    "categories": ["malware-analysis", "api-scripting-and-automation"],
     "keywords": ["signsrch", "signature", "crypto", "pattern", "search"]
   }
 }
