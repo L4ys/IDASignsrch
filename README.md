@@ -20,7 +20,7 @@ hcli plugin install IDASignsrch
    - **Windows:**
      `%APPDATA%\Hex-Rays\IDA Pro\plugins\`
    - **macOS/Linux:**
-     `~/IDA/plugins/`
+     `~/.idapro/plugins/`
 3. Restart IDA.
 
 ---
